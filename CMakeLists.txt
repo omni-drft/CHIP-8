@@ -46,15 +46,22 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -DNDEBUG")
 add_executable(chip8-bin 
   src/main.cc 
   src/utils/logger.cc
+  src/core/cpu.cc
 )
 set_target_properties(chip8-bin PROPERTIES OUTPUT_NAME "chip8-bin")
 target_include_directories(chip8-bin PRIVATE "${CMAKE_SOURCE_DIR}/include")
 
+# Running directory
+set_target_properties(chip8-bin PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    XCODE_SCHEME_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
 
 # MSVC specific settings
 if(MSVC)
   target_compile_options(chip8-bin PRIVATE /W4)
   target_compile_definitions(chip8-bin PRIVATE _CRT_SECURE_NO_WARNINGS)
+  set_target_properties(chip8-bin PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 endif()
 
 target_link_libraries(chip8-bin PRIVATE

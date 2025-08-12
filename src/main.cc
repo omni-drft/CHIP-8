@@ -3,9 +3,8 @@
 int main(int argc, char* argv[]) {
   chip8::utils::Logger::Init();
 
-  LOG_TRACE("Test");
-  LOG_DEBUG("Test debuga");
-  LOG_ERROR("Test errora");
+  chip8::core::Cpu cpu;
+  cpu.LoadROM("roms/2-ibm-logo.ch8");
 
   return 0;
 }

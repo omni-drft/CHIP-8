@@ -20,6 +20,8 @@ void Logger::Init() noexcept {
       "Logger",
       std::initializer_list<spdlog::sink_ptr>{file_sink_, console_sink_});
   logger_->set_level(spdlog::level::trace);
+
+  LOG_INFO("Logger initialized.");
 }
 
 }  // namespace chip8::utils
