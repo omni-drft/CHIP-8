@@ -11,6 +11,7 @@ Cpu::Cpu() noexcept
       delay_timer_(),
       keys_(),
       screen_() {
+  LoadFontChars();
   LOG_INFO("CPU initialized.");
 }
 
@@ -25,7 +26,7 @@ bool Cpu::LoadROM(std::filesystem::path rom_path) noexcept {
   LOG_TRACE("ROM file successfully opened ('{}')", rom_path.string());
 
   std::streamsize rom_size{in_stream.tellg()};
-  LOG_DEBUG("ROM size ('{}'): {} bytes", rom_path.string(),  rom_size);
+  LOG_DEBUG("ROM size ('{}'): {} bytes", rom_path.string(), rom_size);
 
   if (rom_size <= 0) {
     LOG_ERROR("ROM file is empty ('{}')", rom_path.string());
@@ -48,6 +49,15 @@ bool Cpu::LoadROM(std::filesystem::path rom_path) noexcept {
 
   LOG_INFO("Succesfully loaded ROM into memory ('{}')", rom_path.string());
   return true;
+}
+
+void Cpu::LoadFontChars() noexcept {
+  for (size_t i{}; i < kFontsetCharAmount; ++i) {
+    for (size_t j{}; j < 5; ++j) {
+      memory_.at(kFontsetStartAddress + i * 5 + j) = kFontset.at(i).at(j);
+    }
+  }
+  LOG_TRACE("Fontset loaded into memory at: {:#05x}", kFontsetStartAddress);
 }
 
 }  // namespace chip8::core

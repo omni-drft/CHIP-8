@@ -1,19 +1,22 @@
 #pragma once
 
+#include <chip8/core/constants.h>
+#include <chip8/utils/logger.h>
+
 #include <array>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
 
-#include <chip8/utils/logger.h>
-#include <chip8/core/constants.h>
-
 namespace chip8::core {
 class Cpu {
  public:
   Cpu() noexcept;
-  bool LoadROM(std::filesystem::path rom_path) noexcept;		
+  bool LoadROM(std::filesystem::path rom_path) noexcept;
+
  private:
+  void LoadFontChars() noexcept;
+
   std::array<uint8_t, 16> registers_;
   std::array<uint8_t, 4096> memory_;
   uint16_t index_register_;
