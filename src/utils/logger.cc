@@ -9,7 +9,7 @@ std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> Logger::console_sink_;
 void Logger::Init() noexcept {
   file_sink_ = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
       "logs/chip8.log", 1024 * 1024 * 10, 5);
-  file_sink_->set_pattern("<%Y-%m-%d %H:%M:%S> [%l]: %v");
+  file_sink_->set_pattern("[%=8l] <%Y-%m-%d %H:%M:%S> : %v");
   file_sink_->set_level(spdlog::level::trace);
 
   console_sink_ = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
