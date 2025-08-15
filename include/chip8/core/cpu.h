@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
+#include <random>
+#include <chrono>
 
 namespace chip8::core {
 class Cpu {
@@ -16,6 +18,7 @@ class Cpu {
 
  private:
   void LoadFontChars() noexcept;
+  void InitRNG() noexcept;
 
   std::array<uint8_t, 16> registers_;
   std::array<uint8_t, 4096> memory_;
@@ -26,6 +29,11 @@ class Cpu {
   uint8_t delay_timer_;
   std::array<uint8_t, 16> keys_;
   std::array<bool, 64 * 32> screen_;
+
+  std::random_device rd_;
+  std::mt19937 gen_;
+
+  // todo Implement opcodes
 };
 
 }  // namespace chip8::core

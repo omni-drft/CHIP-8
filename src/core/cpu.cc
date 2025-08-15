@@ -10,7 +10,8 @@ Cpu::Cpu() noexcept
       stack_pointer_(),
       delay_timer_(),
       keys_(),
-      screen_() {
+      screen_(),
+      gen_(rd_()) {
   LoadFontChars();
   LOG_INFO("CPU initialized.");
 }
