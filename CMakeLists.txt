@@ -99,7 +99,7 @@ if (BUILD_TESTING)
     enable_testing()
 
     add_executable(chip8-tests
-      tests/tests.cc
+      tests/main_test.cc
     )
 
     target_include_directories(chip8-tests PRIVATE "${CMAKE_SOURCE_DIR}/include")
