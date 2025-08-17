@@ -12,8 +12,9 @@ Cpu::Cpu() noexcept
       keys_(),
       screen_(),
       gen_(InitRNG()),
-      dist_(0, UINT8_MAX) {
-    // log seed here
+      dist_(0, UINT8_MAX),
+      critical_error_(CritErrors::kNone),
+      opcode_() {
   LoadFontChars();
   LOG_INFO("CPU initialized.");
 }
@@ -70,5 +71,23 @@ unsigned int Cpu::InitRNG() noexcept {
 }
 
 uint8_t Cpu::GenUint8() noexcept { return static_cast<uint8_t>(dist_(gen_)); }
+
+std::optional<uint16_t> Cpu::PopStack() noexcept {
+  if (stack_pointer_ == 0) {
+    LOG_CRITICAL("Stack underflow.");
+    critical_error_ = CritErrors::kStackUnderflow;
+    return std::nullopt;
+  }
+  return stack_.at(--stack_pointer_);
+}
+
+void Cpu::PushStack(uint16_t value) noexcept {
+  if (stack_pointer_ >= stack_.size()) {
+    LOG_CRITICAL("Stack overflow.");
+    critical_error_ = CritErrors::kStackOverflow;
+    return;
+  }
+  stack_.at(stack_pointer_++) = value;
+}
 
 }  // namespace chip8::core

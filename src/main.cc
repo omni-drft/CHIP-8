@@ -3,6 +3,10 @@
 // todo Implement random number generation
 // todo Implement opcodes
 
+// ! Links to articles i used:
+// ! https://austinmorlan.com/posts/chip8_emulator/
+// ! http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#00E0
+
 int main(int argc, char* argv[]) {
   chip8::utils::Logger::Init();
 

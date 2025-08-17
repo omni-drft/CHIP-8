@@ -4,6 +4,12 @@
 
 namespace chip8::core {
 
+enum class CritErrors {
+  kNone,
+  kStackUnderflow,
+  kStackOverflow
+};
+
 constexpr size_t kRomStartAddress{0x200};
 
 constexpr size_t kFontsetStartAddress{0x50};

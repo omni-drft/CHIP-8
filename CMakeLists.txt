@@ -70,6 +70,7 @@ add_executable(chip8-bin
   src/main.cc 
   src/utils/logger.cc
   src/core/cpu.cc
+  src/core/cpu_opcodes.cc
 )
 set_target_properties(chip8-bin PROPERTIES OUTPUT_NAME "chip8-bin")
 target_include_directories(chip8-bin PRIVATE "${CMAKE_SOURCE_DIR}/include")
