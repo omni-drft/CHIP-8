@@ -11,7 +11,9 @@ Cpu::Cpu() noexcept
       delay_timer_(),
       keys_(),
       screen_(),
-      gen_(rd_()) {
+      gen_(InitRNG()),
+      dist_(0, UINT8_MAX) {
+    // log seed here
   LoadFontChars();
   LOG_INFO("CPU initialized.");
 }
@@ -60,5 +62,13 @@ void Cpu::LoadFontChars() noexcept {
   }
   LOG_TRACE("Fontset loaded into memory at: {:#05x}", kFontsetStartAddress);
 }
+
+unsigned int Cpu::InitRNG() noexcept {
+  unsigned int seed{std::random_device{}()};
+  LOG_DEBUG("RNG seed: {}", seed);
+  return seed;
+}
+
+uint8_t Cpu::GenUint8() noexcept { return static_cast<uint8_t>(dist_(gen_)); }
 
 }  // namespace chip8::core

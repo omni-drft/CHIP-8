@@ -18,7 +18,8 @@ class Cpu {
 
  private:
   void LoadFontChars() noexcept;
-  void InitRNG() noexcept;
+  unsigned int InitRNG() noexcept;
+  uint8_t GenUint8() noexcept;
 
   std::array<uint8_t, 16> registers_;
   std::array<uint8_t, 4096> memory_;
@@ -32,6 +33,7 @@ class Cpu {
 
   std::random_device rd_;
   std::mt19937 gen_;
+  std::uniform_int_distribution<> dist_;
 
   // todo Implement opcodes
 };
