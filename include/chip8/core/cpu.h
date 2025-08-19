@@ -72,6 +72,57 @@ class Cpu {
   /// </para>
   /// </summary>
   void Opcode2NNN() noexcept;
+
+  /// <summary>
+  /// SE Vx, byte - Skip next instruction if Vx = kk.
+  /// <para>
+  /// The interpreter compares register Vx to kk, and if they are equal,
+  /// increments the program counter by 2.
+  /// </para>
+  /// </summary>
+  void Opcode3XKK() noexcept;
+
+  /// <summary>
+  /// SNE Vx, byte - Skip next instruction if Vx != kk.
+  /// <para>
+  /// The interpreter compares register Vx to kk, and if they are not equal,
+  /// increments the program counter by 2.
+  /// </para>
+  /// </summary>
+  void Opcode4XKK() noexcept;
+
+  /// <summary>
+  /// SE Vx, Vy - Skip next instruction if Vx = Vy.
+  /// <para>
+  /// The interpreter compares register Vx to register Vy, and if they are
+  /// equal, increments the program counter by 2.
+  /// </para>
+  /// </summary>
+  void Opcode5XY0() noexcept;
+
+  /// <summary>
+  /// LD Vx, byte - Set Vx = kk.
+  /// <para>
+  /// The interpreter puts the value kk into register Vx.
+  /// </para>
+  /// </summary>
+  void Opcode6XKK() noexcept;
+
+  /// <summary>
+  /// ADD Vx, byte - Set Vx = Vx + kk.
+  /// <para>
+  /// Adds the value kk to the value of register Vx, then stores the result in Vx.
+  /// </para>
+  /// </summary>
+  void Opcode7XKK() noexcept;
+
+  /// <summary>
+  /// LD Vx, Vy - Set Vx = Vy.
+  /// <para>
+  /// Stores the value of register Vy in register Vx.
+  /// </para>
+  /// </summary>
+  void Opcode8XY0() noexcept;
 };
 
 }  // namespace chip8::core
