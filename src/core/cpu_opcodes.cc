@@ -57,9 +57,72 @@ void Cpu::Opcode7XKK() noexcept {
 
 void Cpu::Opcode8XY0() noexcept {
   LOG_TRACE("LD Vx, Vy - Set Vx = Vy.");
-  registers_.at((opcode_ * 0x0F00u) >> 8u) =
-      registers_.at((opcode_ * 0x00F0u) >> 4u);
+  registers_.at((opcode_ & 0x0F00u) >> 8u) =
+      registers_.at((opcode_ & 0x00F0u) >> 4u);
 }
+
+void Cpu::Opcode8XY1() noexcept {
+  LOG_TRACE("OR Vx, Vy - Set Vx = Vx OR Vy.");
+  registers_.at((opcode_ & 0x0F00u) >> 8u) =
+      registers_.at((opcode_ & 0x0F00u) >> 8u) |
+      registers_.at((opcode_ & 0x00F0u) >> 4u);
+}
+
+void Cpu::Opcode8XY2() noexcept {
+  LOG_TRACE("AND Vx, Vy - Set Vx = Vx AND Vy.");
+  registers_.at((opcode_ & 0x0F00u) >> 8u) =
+      registers_.at((opcode_ & 0x0F00u) >> 8u) &
+      registers_.at((opcode_ & 0x00F0u) >> 4u);
+}
+
+void Cpu::Opcode8XY3() noexcept {
+  LOG_TRACE("XOR Vx, Vy - Set Vx = Vx XOR Vy.");
+  registers_.at((opcode_ & 0x0F00u) >> 8u) =
+      registers_.at((opcode_ & 0x0F00u) >> 8u) ^
+      registers_.at((opcode_ & 0x00F0u) >> 4u);
+}
+
+void Cpu::Opcode8XY4() noexcept {
+  LOG_TRACE("ADD Vx, Vy - Set Vx = Vx + Vy, set VF = carry.");
+
+  uint16_t sum{static_cast<uint16_t>(registers_.at((opcode_ & 0x0F00u) >> 8u) +
+               registers_.at((opcode_ & 0x00F0u) >> 4u))};
+
+  registers_.at(0xFu) = (sum > 0xFFu) ? 1 : 0;
+
+  registers_.at((opcode_ & 0x0F00u) >> 8u) = sum & 0xFFu;
+}
+
+void Cpu::Opcode8XY5() noexcept {
+  LOG_TRACE("SUB Vx, Vy - Set Vx = Vx - Vy, set VF = NOT borrow.");
+  registers_.at(0xFu) = (registers_.at((opcode_ & 0x0F00u) >> 8u) >
+                         registers_.at((opcode_ & 0x00F0u) >> 4u))
+                            ? 1
+                            : 0;
+
+  registers_.at((opcode_ & 0x0F00u) >> 8u) -=
+      registers_.at((opcode_ & 0x00F0u) >> 4u);
+}
+
+void Cpu::Opcode8XY6() noexcept {
+  LOG_TRACE("SHR Vx {, Vy} - Set Vx = Vx SHR 1.");
+  registers_.at(0xFu) = registers_.at((opcode_ & 0x0F00u) >> 8u) & 0x1u;
+  registers_.at((opcode_ & 0x0F00u) >> 8u) >>= 1u;
+}
+
+void Cpu::Opcode8XY7() noexcept {
+  LOG_TRACE("SUBN Vx, Vy - Set Vx = Vy - Vx, set VF = NOT borrow.");
+  registers_.at(0xFu) = (registers_.at((opcode_ & 0x0F00u) >> 8u) <
+                         registers_.at((opcode_ & 0x00F0u) >> 4u))
+                            ? 1
+                            : 0;
+
+  registers_.at((opcode_ & 0x0F00u) >> 8u) =
+      registers_.at((opcode_ & 0x00F0u) >> 4u) -
+      registers_.at((opcode_ & 0x0F00u) >> 8u);
+}
+
+
 
 
 

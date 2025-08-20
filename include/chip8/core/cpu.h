@@ -111,7 +111,8 @@ class Cpu {
   /// <summary>
   /// ADD Vx, byte - Set Vx = Vx + kk.
   /// <para>
-  /// Adds the value kk to the value of register Vx, then stores the result in Vx.
+  /// Adds the value kk to the value of register Vx, then stores the result in
+  /// Vx.
   /// </para>
   /// </summary>
   void Opcode7XKK() noexcept;
@@ -123,6 +124,76 @@ class Cpu {
   /// </para>
   /// </summary>
   void Opcode8XY0() noexcept;
+
+  /// <summary>
+  /// OR Vx, Vy - Set Vx = Vx OR Vy.
+  /// <para>
+  /// Performs a bitwise OR on the values of Vx and Vy, then stores the result
+  /// in Vx. A bitwise OR compares the corrseponding bits from two values, and
+  /// if either bit is 1, then the same bit in the result is also 1. Otherwise,
+  /// it is 0.
+  /// </para>
+  /// </summary>
+  void Opcode8XY1() noexcept;
+
+  /// <summary>
+  /// AND Vx, Vy - Set Vx = Vx AND Vy.
+  /// <para>
+  /// Performs a bitwise AND on the values of Vx and Vy, then stores the result
+  /// in Vx. A bitwise AND compares the corrseponding bits from two values, and
+  /// if both bits are 1, then the same bit in the result is also 1. Otherwise,
+  /// it is 0.
+  /// </para>
+  /// </summary>
+  void Opcode8XY2() noexcept;
+
+  /// <summary>
+  /// XOR Vx, Vy - Set Vx = Vx XOR Vy.
+  /// <para>
+  /// Performs a bitwise exclusive OR on the values of Vx and Vy, then stores
+  /// the result in Vx. An exclusive OR compares the corrseponding bits from two
+  /// values, and if the bits are not both the same, then the corresponding bit
+  /// in the result is set to 1. Otherwise, it is 0.
+  /// </para>
+  /// </summary>
+  void Opcode8XY3() noexcept;
+
+  /// <summary>
+  /// ADD Vx, Vy - Set Vx = Vx + Vy, set VF = carry.
+  /// <para>
+  /// The values of Vx and Vy are added together. If the result is greater than
+  /// 8 bits (i.e., > 255,) VF is set to 1, otherwise 0. Only the lowest 8 bits
+  /// of the result are kept, and stored in Vx.
+  /// </para>
+  /// </summary>
+  void Opcode8XY4() noexcept;
+
+  /// <summary>
+  /// SUB Vx, Vy - Set Vx = Vx - Vy, set VF = NOT borrow.
+  /// <para>
+  /// If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from
+  /// Vx, and the results stored in Vx.
+  /// </para>
+  /// </summary>
+  void Opcode8XY5() noexcept;
+
+  /// <summary>
+  /// SHR Vx {, Vy} - Set Vx = Vx SHR 1.
+  /// <para>
+  /// If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0.
+  /// Then Vx is divided by 2.
+  /// </para>
+  /// </summary>
+  void Opcode8XY6() noexcept;
+
+  /// <summary>
+  /// SUBN Vx, Vy - Set Vx = Vy - Vx, set VF = NOT borrow.
+  /// <para>
+  /// If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from
+  /// Vy, and the results stored in Vx.
+  /// </para>
+  /// </summary>
+  void Opcode8XY7() noexcept;
 };
 
 }  // namespace chip8::core
