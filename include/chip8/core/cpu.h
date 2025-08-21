@@ -194,6 +194,54 @@ class Cpu {
   /// </para>
   /// </summary>
   void Opcode8XY7() noexcept;
+
+  /// <summary>
+  /// SHL Vx {, Vy} - Set Vx = Vx SHL 1.
+  /// <para>
+  /// If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to
+  /// 0. Then Vx is multiplied by 2.
+  /// </para>
+  /// <remarks>
+  /// <strong>Warning:</strong> This instruction might cause some issues due to
+  /// inaccurate specification of what should it do.
+  /// </remarks>
+  /// </summary>
+  void Opcode8XYE() noexcept;
+
+  /// <summary>
+  /// SNE Vx, Vy - Skip next instruction if Vx != Vy.
+  /// <para>
+  /// The values of Vx and Vy are compared, and if they are not equal, the
+  /// program counter is increased by 2.
+  /// </para>
+  /// </summary>
+  void Opcode9XY0() noexcept;
+
+  /// <summary>
+  /// LD I, addr - Set I = nnn.
+  /// <para>
+  /// The value of register I is set to nnn.
+  /// </para>
+  /// </summary>
+  void OpcodeANNN() noexcept;
+
+  /// <summary>
+  /// JP V0, addr - Jump to location nnn + V0.
+  /// <para>
+  /// The program counter is set to nnn plus the value of V0.
+  /// </para>
+  /// </summary>
+  void OpcodeBNNN() noexcept;
+
+  /// <summary>
+  /// RND Vx, byte - Set Vx = random byte AND kk.
+  /// <para>
+  /// The interpreter generates a random number from 0 to 255, which is then
+  /// ANDed with the value kk. The results are stored in Vx. See instruction
+  /// 8xy2 for more information on AND.
+  /// </para>
+  /// </summary>
+  void OpcodeCXKK() noexcept;
 };
 
 }  // namespace chip8::core

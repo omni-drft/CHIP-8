@@ -86,7 +86,7 @@ void Cpu::Opcode8XY4() noexcept {
   LOG_TRACE("ADD Vx, Vy - Set Vx = Vx + Vy, set VF = carry.");
 
   uint16_t sum{static_cast<uint16_t>(registers_.at((opcode_ & 0x0F00u) >> 8u) +
-               registers_.at((opcode_ & 0x00F0u) >> 4u))};
+                                     registers_.at((opcode_ & 0x00F0u) >> 4u))};
 
   registers_.at(0xFu) = (sum > 0xFFu) ? 1 : 0;
 
@@ -122,8 +122,42 @@ void Cpu::Opcode8XY7() noexcept {
       registers_.at((opcode_ & 0x0F00u) >> 8u);
 }
 
+void Cpu::Opcode8XYE() noexcept {
+  LOG_TRACE("SHL Vx {, Vy} - Set Vx = Vx SHL 1.");
+  LOG_WARN(
+      "This instruction might cause some issues due to inaccurate "
+      "documentation about what it should do");
 
+  // todo Decide which specification to use.
 
+  if (registers_.at((opcode_ & 0x0F00u) >> 8u) >> 7u) {
+    registers_.at(0xFu) = 1;
+  } else {
+    registers_.at(0xFu) = 0;
+  }
+  registers_.at((opcode_ & 0x0F00u) >> 8u) <<= 1u;
+}
 
+void Cpu::Opcode9XY0() noexcept {
+  if (registers_.at((opcode_ & 0x0F00u) >> 8u) !=
+      registers_.at((opcode_ & 0x00F0u) >> 4u)) {
+    program_counter_ += 2;
+  }
+}
+
+void Cpu::OpcodeANNN() noexcept {
+  LOG_TRACE("LD I, addr - Set I = nnn.");
+  index_register_ = opcode_ & 0x0FFFu;
+}
+
+void Cpu::OpcodeBNNN() noexcept {
+  LOG_TRACE("JP V0, addr - Jump to location nnn + V0.");
+  program_counter_ = (opcode_ & 0x0FFFu) + registers_.at(0);
+}
+
+void Cpu::OpcodeCXKK() noexcept {
+  LOG_TRACE("RND Vx, byte - Set Vx = random byte AND kk.");
+  registers_.at((opcode_ & 0x0F00u) >> 8u) = GenUint8() & (opcode_ & 0x00FFu);
+}
 
 }  // namespace chip8::core
