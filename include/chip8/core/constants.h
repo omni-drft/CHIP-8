@@ -16,6 +16,9 @@ constexpr size_t kFontsetStartAddress{0x50};
 constexpr size_t kFontsetSize{80};
 constexpr size_t kFontsetCharAmount{16};
 
+constexpr size_t kScreenWidth{800};
+constexpr size_t kScreenHeight{600};
+
 constexpr std::array<std::array<uint8_t, 5>, 16> kFontset{{
     // 0
     {
