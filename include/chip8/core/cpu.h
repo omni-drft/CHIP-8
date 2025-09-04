@@ -12,10 +12,18 @@
 #include <random>
 
 namespace chip8::core {
+
+class Screen;
+
 class Cpu {
  public:
+  friend class Screen;
+
   Cpu() noexcept;
   bool LoadROM(std::filesystem::path rom_path) noexcept;
+
+ protected:
+  const std::array<bool, 64 * 32>& GetPixels() noexcept;
 
  private:
   void LoadFontChars() noexcept;

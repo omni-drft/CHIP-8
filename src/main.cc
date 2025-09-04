@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
   chip8::core::Cpu cpu;
   cpu.LoadROM("roms/2-ibm-logo.ch8");
 
-  chip8::core::Screen screen;
+  chip8::core::Screen screen(cpu);
   screen.RenderLoop([](){});
 
   return 0;

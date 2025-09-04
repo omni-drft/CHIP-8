@@ -1,7 +1,13 @@
+#pragma once
+
 #include <SDL2/SDL.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_audio.h>
 
 #include <memory>
 #include <functional>
+#include <cstdint>
+#include <cmath>
 
 #include <chip8/core/constants.h>
 #include <chip8/core/cpu.h>
@@ -10,15 +16,25 @@ namespace chip8::core {
 
 class Screen {
  public:
-  Screen() noexcept;
+  Screen(const Cpu& cpu) noexcept;
 
   void RenderLoop(const std::function<void()>& cpu_cycle) noexcept;
 
   ~Screen() noexcept;
 
  private:
+
+  void GenerateBeep() noexcept;
+  void PlayBeep() noexcept;
+
   SDL_Window* window_;
   SDL_Surface* surface_;
+
+  SDL_AudioSpec want_, have_;
+  SDL_AudioDeviceID dev_;
+  std::vector<Sint16> audio_buffer_;
+
+  const Cpu& cpu_;
 };
 
 }  // namespace chip8::core

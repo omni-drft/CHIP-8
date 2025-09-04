@@ -12,12 +12,19 @@ enum class CritErrors {
 
 constexpr size_t kRomStartAddress{0x200};
 
+constexpr size_t kScreenWidth{1024};
+constexpr size_t kScreenHeight{512};
+constexpr size_t kPixelSize{16};
+
+constexpr size_t kSampleRate{8000};
+constexpr float kFrequency{440.0f};
+constexpr size_t kAmplitude{28000};
+constexpr float kBeepDuration{0.15};
+constexpr size_t kBitCrushFactor{256};
+
 constexpr size_t kFontsetStartAddress{0x50};
 constexpr size_t kFontsetSize{80};
 constexpr size_t kFontsetCharAmount{16};
-
-constexpr size_t kScreenWidth{800};
-constexpr size_t kScreenHeight{600};
 
 constexpr std::array<std::array<uint8_t, 5>, 16> kFontset{{
     // 0

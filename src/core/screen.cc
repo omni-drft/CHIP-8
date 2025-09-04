@@ -2,7 +2,8 @@
 
 namespace chip8::core {
 
-Screen::Screen() noexcept : window_(nullptr), surface_(nullptr) {
+Screen::Screen(const Cpu& cpu) noexcept
+    : window_(nullptr), surface_(nullptr), cpu_(cpu) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
     LOG_ERROR("Error during SDL initialization: \"{}\"", SDL_GetError());
     SDL_Quit();
@@ -44,6 +45,26 @@ Screen::Screen() noexcept : window_(nullptr), surface_(nullptr) {
 #else
   LOG_INFO("To get more information about graphics module use Debug mode.");
 #endif
+
+  SDL_zero(want_);
+  want_.freq = kSampleRate;
+  want_.format = AUDIO_S16LSB;
+  want_.channels = 1;
+  want_.samples = 2048;
+  want_.callback = NULL;
+
+  dev_ = SDL_OpenAudioDevice(NULL, 0, &want_, &have_, 0);
+  if (dev_ == 0) {
+    LOG_ERROR("Failed to open audio device.");
+    SDL_CloseAudioDevice(dev_);
+    SDL_Quit();
+    return;
+  }
+
+  size_t num_samples = static_cast<size_t>(kBeepDuration * kSampleRate);
+  audio_buffer_.resize(num_samples);
+
+  GenerateBeep();
 }
 
 void Screen::RenderLoop(const std::function<void()>& cpu_cycle) noexcept {
@@ -56,12 +77,28 @@ void Screen::RenderLoop(const std::function<void()>& cpu_cycle) noexcept {
       }
     }
     cpu_cycle();
+    PlayBeep();
   }
 }
 
 Screen::~Screen() noexcept {
   SDL_DestroyWindow(window_);
   SDL_Quit();
+}
+
+void Screen::GenerateBeep() noexcept {
+  for (size_t i{}; i < audio_buffer_.size(); ++i) {
+    double time{static_cast<double>(i) / kSampleRate};
+    Sint16 sample{static_cast<Sint16>(
+        kAmplitude * std::sin(2.0 * M_PI * kFrequency * time))};
+    audio_buffer_.at(i) = (sample / kBitCrushFactor) * kBitCrushFactor;
+  }
+}
+
+void Screen::PlayBeep() noexcept {
+  SDL_QueueAudio(dev_, audio_buffer_.data(),
+                 audio_buffer_.size() * sizeof(Sint16));
+  SDL_PauseAudioDevice(dev_, 0);
 }
 
 }  // namespace chip8::core
