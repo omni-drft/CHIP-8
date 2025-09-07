@@ -2,8 +2,8 @@
 
 namespace chip8::core {
 
-Screen::Screen(const Cpu& cpu) noexcept
-    : window_(nullptr), surface_(nullptr), cpu_(cpu) {
+Screen::Screen(Cpu& cpu) noexcept
+    : window_(nullptr), cpu_(cpu) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
     LOG_ERROR("Error during SDL initialization: \"{}\"", SDL_GetError());
     SDL_Quit();
@@ -21,21 +21,10 @@ Screen::Screen(const Cpu& cpu) noexcept
     return;
   }
 
-  /*surface_ = SDL_GetWindowSurface(window_);
-
-  if (surface_ == NULL) {
-    LOG_ERROR("Error during getting window surface: \"{}\"", SDL_GetError());
-    SDL_DestroyWindowSurface(window_);
-    SDL_DestroyWindow(window_);
-    SDL_Quit();
-    return;
-  }*/
-
   renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
 
   if (renderer_ == NULL) {
     LOG_ERROR("Error during renderer creation: \"{}\"", SDL_GetError());
-    // SDL_DestroyWindowSurface(window_);
     SDL_DestroyWindow(window_);
     SDL_DestroyRenderer(renderer_);
     SDL_Quit();
@@ -44,11 +33,6 @@ Screen::Screen(const Cpu& cpu) noexcept
 
   SDL_SetRenderDrawColor(renderer_, 0u, 0u, 0u, 255u);
   SDL_RenderClear(renderer_);
-
-  // SDL_FillRect(surface_, NULL,
-  //              SDL_MapRGB(surface_->format, 0x00u, 0x00u, 0x00u));
-
-  SDL_UpdateWindowSurface(window_);
 
   LOG_INFO("Graphics module successfully initialized.");
 #ifndef NDEBUG
@@ -75,7 +59,6 @@ Screen::Screen(const Cpu& cpu) noexcept
   if (dev_ == 0) {
     LOG_ERROR("Failed to open audio device.");
     SDL_CloseAudioDevice(dev_);
-    // SDL_DestroyWindowSurface(window_);
     SDL_DestroyWindow(window_);
     SDL_DestroyRenderer(renderer_);
     SDL_Quit();
@@ -100,12 +83,12 @@ void Screen::RenderLoop(const std::function<void()>& cpu_cycle) noexcept {
     }
     cpu_cycle();
     UpdateDisplay();
+    UpdateKeysState();
   }
 }
 
 Screen::~Screen() noexcept {
   SDL_CloseAudioDevice(dev_);
-  // SDL_DestroyWindowSurface(window_);
   SDL_DestroyWindow(window_);
   SDL_DestroyRenderer(renderer_);
   SDL_Quit();
@@ -144,6 +127,27 @@ void Screen::UpdateDisplay() noexcept {
   SDL_RenderPresent(renderer_);
   SDL_SetRenderDrawColor(renderer_, 0u, 0u, 0u, 255u);
   SDL_RenderClear(renderer_);
+}
+
+void Screen::UpdateKeysState() noexcept {
+  const Uint8* sdl_state{SDL_GetKeyboardState(NULL)};
+
+  cpu_.keys_.at(0x0u) = sdl_state[SDL_SCANCODE_X];
+  cpu_.keys_.at(0x1u) = sdl_state[SDL_SCANCODE_1];
+  cpu_.keys_.at(0x2u) = sdl_state[SDL_SCANCODE_2];
+  cpu_.keys_.at(0x3u) = sdl_state[SDL_SCANCODE_3];
+  cpu_.keys_.at(0x4u) = sdl_state[SDL_SCANCODE_Q];
+  cpu_.keys_.at(0x5u) = sdl_state[SDL_SCANCODE_W];
+  cpu_.keys_.at(0x6u) = sdl_state[SDL_SCANCODE_E];
+  cpu_.keys_.at(0x7u) = sdl_state[SDL_SCANCODE_A];
+  cpu_.keys_.at(0x8u) = sdl_state[SDL_SCANCODE_S];
+  cpu_.keys_.at(0x9u) = sdl_state[SDL_SCANCODE_D];
+  cpu_.keys_.at(0xAu) = sdl_state[SDL_SCANCODE_Z];
+  cpu_.keys_.at(0xBu) = sdl_state[SDL_SCANCODE_C];
+  cpu_.keys_.at(0xCu) = sdl_state[SDL_SCANCODE_4];
+  cpu_.keys_.at(0xDu) = sdl_state[SDL_SCANCODE_R];
+  cpu_.keys_.at(0xEu) = sdl_state[SDL_SCANCODE_F];
+  cpu_.keys_.at(0xFu) = sdl_state[SDL_SCANCODE_V];
 }
 
 }  // namespace chip8::core

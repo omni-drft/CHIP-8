@@ -16,7 +16,7 @@ namespace chip8::core {
 
 class Screen {
  public:
-  Screen(const Cpu& cpu) noexcept;
+  Screen(Cpu& cpu) noexcept;
 
   void RenderLoop(const std::function<void()>& cpu_cycle) noexcept;
 
@@ -27,16 +27,16 @@ class Screen {
   void GenerateBeep() noexcept;
   void PlayBeep() noexcept;
   void UpdateDisplay() noexcept;
+  void UpdateKeysState() noexcept;
 
   SDL_Window* window_;
-  SDL_Surface* surface_;
   SDL_Renderer* renderer_;
 
   SDL_AudioSpec want_, have_;
   SDL_AudioDeviceID dev_;
   std::vector<Sint16> audio_buffer_;
 
-  const Cpu& cpu_;
+  Cpu& cpu_;
 };
 
 }  // namespace chip8::core
