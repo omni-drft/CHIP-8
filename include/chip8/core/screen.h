@@ -26,9 +26,11 @@ class Screen {
 
   void GenerateBeep() noexcept;
   void PlayBeep() noexcept;
+  void UpdateDisplay() noexcept;
 
   SDL_Window* window_;
   SDL_Surface* surface_;
+  SDL_Renderer* renderer_;
 
   SDL_AudioSpec want_, have_;
   SDL_AudioDeviceID dev_;

@@ -1,6 +1,5 @@
 #include <chip8/chip8.h>
 
-// todo Implement random number generation
 // todo Implement opcodes
 
 // ! Links to articles i used:

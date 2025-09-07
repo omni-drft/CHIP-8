@@ -7,6 +7,7 @@ Screen::Screen(const Cpu& cpu) noexcept
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
     LOG_ERROR("Error during SDL initialization: \"{}\"", SDL_GetError());
     SDL_Quit();
+    return;
   }
 
   window_ = SDL_CreateWindow("CHIP8 Emulator", SDL_WINDOWPOS_CENTERED,
@@ -17,18 +18,35 @@ Screen::Screen(const Cpu& cpu) noexcept
     LOG_ERROR("Error during window creation: \"{}\"", SDL_GetError());
     SDL_DestroyWindow(window_);
     SDL_Quit();
+    return;
   }
 
-  surface_ = SDL_GetWindowSurface(window_);
+  /*surface_ = SDL_GetWindowSurface(window_);
 
   if (surface_ == NULL) {
     LOG_ERROR("Error during getting window surface: \"{}\"", SDL_GetError());
+    SDL_DestroyWindowSurface(window_);
     SDL_DestroyWindow(window_);
     SDL_Quit();
+    return;
+  }*/
+
+  renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED);
+
+  if (renderer_ == NULL) {
+    LOG_ERROR("Error during renderer creation: \"{}\"", SDL_GetError());
+    // SDL_DestroyWindowSurface(window_);
+    SDL_DestroyWindow(window_);
+    SDL_DestroyRenderer(renderer_);
+    SDL_Quit();
+    return;
   }
 
-  SDL_FillRect(surface_, NULL,
-               SDL_MapRGB(surface_->format, 0xFFu, 0xFFu, 0xFFu));
+  SDL_SetRenderDrawColor(renderer_, 0u, 0u, 0u, 255u);
+  SDL_RenderClear(renderer_);
+
+  // SDL_FillRect(surface_, NULL,
+  //              SDL_MapRGB(surface_->format, 0x00u, 0x00u, 0x00u));
 
   SDL_UpdateWindowSurface(window_);
 
@@ -57,6 +75,9 @@ Screen::Screen(const Cpu& cpu) noexcept
   if (dev_ == 0) {
     LOG_ERROR("Failed to open audio device.");
     SDL_CloseAudioDevice(dev_);
+    // SDL_DestroyWindowSurface(window_);
+    SDL_DestroyWindow(window_);
+    SDL_DestroyRenderer(renderer_);
     SDL_Quit();
     return;
   }
@@ -70,6 +91,7 @@ Screen::Screen(const Cpu& cpu) noexcept
 void Screen::RenderLoop(const std::function<void()>& cpu_cycle) noexcept {
   SDL_Event e;
   bool quit = false;
+  PlayBeep();
   while (!quit) {
     while (SDL_PollEvent(&e)) {
       if (e.type == SDL_QUIT) {
@@ -77,12 +99,15 @@ void Screen::RenderLoop(const std::function<void()>& cpu_cycle) noexcept {
       }
     }
     cpu_cycle();
-    PlayBeep();
+    UpdateDisplay();
   }
 }
 
 Screen::~Screen() noexcept {
+  SDL_CloseAudioDevice(dev_);
+  // SDL_DestroyWindowSurface(window_);
   SDL_DestroyWindow(window_);
+  SDL_DestroyRenderer(renderer_);
   SDL_Quit();
 }
 
@@ -97,8 +122,28 @@ void Screen::GenerateBeep() noexcept {
 
 void Screen::PlayBeep() noexcept {
   SDL_QueueAudio(dev_, audio_buffer_.data(),
-                 audio_buffer_.size() * sizeof(Sint16));
+                 static_cast<Uint32>(audio_buffer_.size()) * sizeof(Sint16));
   SDL_PauseAudioDevice(dev_, 0);
+}
+
+void Screen::UpdateDisplay() noexcept {
+  const std::array<bool, 64 * 32>& pixels{cpu_.GetPixels()};
+  int width{}, height{};
+  SDL_GetWindowSize(window_, &width, &height);
+  for (size_t i{}; i < 64 * 32; ++i) {
+    size_t x{i % 64}, y{i / 64};
+    if (pixels.at(i)) {
+      SDL_Rect rectangle{
+          static_cast<int>(x * kPixelSize), static_cast<int>(y * kPixelSize),
+          static_cast<int>(kPixelSize), static_cast<int>(kPixelSize)};
+      SDL_SetRenderDrawColor(renderer_, 255u, 255u, 255u, 255u);
+      SDL_RenderDrawRect(renderer_, &rectangle);
+      SDL_RenderFillRect(renderer_, &rectangle);
+    }
+  }
+  SDL_RenderPresent(renderer_);
+  SDL_SetRenderDrawColor(renderer_, 0u, 0u, 0u, 255u);
+  SDL_RenderClear(renderer_);
 }
 
 }  // namespace chip8::core

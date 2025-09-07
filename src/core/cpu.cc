@@ -17,6 +17,13 @@ Cpu::Cpu() noexcept
       opcode_() {
   LoadFontChars();
   LOG_INFO("CPU initialized.");
+  for (size_t i{}; i < 64 * 32; ++i) {
+    if (i % 2 == 0) {
+      screen_.at(i) = true;
+    } else {
+      screen_.at(i) = false;
+    }
+  }
 }
 
 bool Cpu::LoadROM(std::filesystem::path rom_path) noexcept {
@@ -53,6 +60,10 @@ bool Cpu::LoadROM(std::filesystem::path rom_path) noexcept {
 
   LOG_INFO("Succesfully loaded ROM into memory ('{}')", rom_path.string());
   return true;
+}
+
+const std::array<bool, 64 * 32>& Cpu::GetPixels() const noexcept {
+  return screen_;
 }
 
 void Cpu::LoadFontChars() noexcept {

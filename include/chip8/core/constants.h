@@ -19,7 +19,7 @@ constexpr size_t kPixelSize{16};
 constexpr size_t kSampleRate{8000};
 constexpr float kFrequency{440.0f};
 constexpr size_t kAmplitude{28000};
-constexpr float kBeepDuration{0.15};
+constexpr float kBeepDuration{0.15f};
 constexpr size_t kBitCrushFactor{256};
 
 constexpr size_t kFontsetStartAddress{0x50};

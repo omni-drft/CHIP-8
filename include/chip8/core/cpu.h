@@ -23,7 +23,7 @@ class Cpu {
   bool LoadROM(std::filesystem::path rom_path) noexcept;
 
  protected:
-  const std::array<bool, 64 * 32>& GetPixels() noexcept;
+  const std::array<bool, 64 * 32>& GetPixels() const noexcept;
 
  private:
   void LoadFontChars() noexcept;
