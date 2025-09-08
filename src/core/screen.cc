@@ -3,7 +3,7 @@
 namespace chip8::core {
 
 Screen::Screen(Cpu& cpu) noexcept
-    : window_(nullptr), cpu_(cpu) {
+    : window_(nullptr), cpu_(cpu), dev_(), have_(), want_(), renderer_(nullptr) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
     LOG_ERROR("Error during SDL initialization: \"{}\"", SDL_GetError());
     SDL_Quit();
