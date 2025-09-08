@@ -10,6 +10,7 @@
 #include <fstream>
 #include <optional>
 #include <random>
+#include <algorithm>
 
 namespace chip8::core {
 
@@ -39,6 +40,7 @@ class Cpu {
   std::array<uint16_t, 16> stack_;
   uint8_t stack_pointer_;
   uint8_t delay_timer_;
+  uint8_t sound_timer_;
   std::array<uint8_t, 16> keys_;
   std::array<bool, 64 * 32> screen_;
 
@@ -254,18 +256,118 @@ class Cpu {
   /// <summary>
   /// DRW Vx, Vy, nibble - Display n-byte sprite starting at memory location I
   /// at (Vx, Vy), set VF = collision.
-  /// <para> The interpreter reads n bytes from
+  /// <para>
+  /// The interpreter reads n bytes from
   /// memory, starting at the address stored in I. These bytes are then
   /// displayed as sprites on screen at coordinates (Vx, Vy). Sprites are XORed
   /// onto the existing screen. If this causes any pixels to be erased, VF is
   /// set to 1, otherwise it is set to 0. If the sprite is positioned so part of
   /// it is outside the coordinates of the display, it wraps around to the
-  /// opposite side of the screen. See instruction 8xy3 for more information on
-  /// XOR, and section 2.4, Display, for more information on the Chip-8 screen
-  /// and sprites.
+  /// opposite side of the screen.
   /// </para>
   /// </summary>
   void OpcodeDXYN() noexcept;
+
+  /// <summary>
+  /// Ex9E - SKP Vx - Skip next instruction if key with the value of Vx is
+  /// pressed.
+  /// <para>
+  /// Checks the keyboard, and if the key corresponding to the
+  /// value of Vx is currently in the down position, PC is increased by 2.
+  /// </para>
+  /// </summary>
+  void OpcodeEX9E() noexcept;
+
+  /// <summary>
+  /// ExA1 - SKNP Vx - Skip next instruction if key with the value of Vx is not
+  /// pressed.
+  /// <para>
+  /// Checks the keyboard, and if the key corresponding to the
+  /// value of Vx is currently in the up position, PC is increased by 2.
+  /// </para>
+  /// </summary>
+  void OpcodeEXA1() noexcept;
+
+  /// <summary>
+  /// Fx07 - LD Vx, DT - Set Vx = delay timer value.
+  /// <para>
+  /// The value of DT is placed into Vx.
+  /// </para>
+  /// </summary>
+  void OpcodeFX07() noexcept;
+
+  /// <summary>
+  /// Fx0A - LD Vx, K - Wait for a key press, store the value of the key in Vx.
+  /// <para>
+  /// All execution stops until a key is pressed, then the value of that key is
+  /// stored in Vx.
+  /// </para>
+  /// </summary>
+  void OpcodeFX0A() noexcept;
+
+  /// <summary>
+  /// Fx15 - LD DT, Vx - Set delay timer = Vx.
+  /// <para>
+  /// DT is set equal to the value of Vx.
+  /// </para>
+  /// </summary>
+  void OpcodeFX15() noexcept;
+
+  /// <summary>
+  /// Fx18 - LD ST, Vx - Set sound timer = Vx.
+  /// <para>
+  /// ST is set equal to the value of Vx.
+  /// </para>
+  /// </summary>
+  void OpcodeFX18() noexcept;
+
+  /// <summary>
+  /// Fx1E - ADD I, Vx - Set I = I + Vx.
+  /// <para>
+  /// The values of I and Vx are added, and the results are stored in I.
+  /// </para>
+  /// </summary>
+  void OpcodeFX1E() noexcept;
+
+  /// <summary>
+  /// Fx29 - LD F, Vx - Set I = location of sprite for digit Vx.
+  /// <para>
+  /// The value of I is set to the location for the hexadecimal sprite
+  /// corresponding to the value of Vx.
+  /// </para>
+  /// </summary>
+  void OpcodeFX29() noexcept;
+
+  /// <summary>
+  /// Fx33 - LD B, Vx - Store BCD representation of Vx in memory locations I,
+  /// I+1, and I+2.
+  /// <para>
+  /// The interpreter takes the decimal value of Vx, and
+  /// places the hundreds digit in memory at location in I, the tens digit at
+  /// location I+1, and the ones digit at location I+2.
+  /// </para>
+  /// </summary>
+  void OpcodeFX33() noexcept;
+
+  /// <summary>
+  /// Fx55 - LD [I], Vx - Store registers V0 through Vx in memory starting at
+  /// location I.
+  /// <para>
+  /// The interpreter copies the values of registers V0
+  /// through Vx into memory, starting at the address in I.
+  /// </para>
+  /// </summary>
+  void OpcodeFX55() noexcept;
+
+  /// <summary>
+  /// Fx65 - LD Vx, [I] - Read registers V0 through Vx from memory starting at
+  /// location I. 
+  /// <para> 
+  /// The interpreter reads values from memory starting at
+  /// location I into registers V0 through Vx.
+  /// </para>
+  /// </summary>
+  void OpcodeFX65() noexcept;
 };
 
 }  // namespace chip8::core

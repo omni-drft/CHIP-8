@@ -1,6 +1,6 @@
 #include <chip8/chip8.h>
 
-// todo Implement opcodes
+// todo   IMPLEMENT CPU CYCLE
 
 // ! Links to articles i used:
 // ! https://austinmorlan.com/posts/chip8_emulator/

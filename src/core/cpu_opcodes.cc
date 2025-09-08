@@ -128,7 +128,7 @@ void Cpu::Opcode8XYE() noexcept {
       "This instruction might cause some issues due to inaccurate "
       "documentation about what it should do");
 
-  // todo Decide which specification to use.
+  // todo DECIDE WHICH IMPLEMENTATION TO USE
 
   if (registers_.at((opcode_ & 0x0F00u) >> 8u) >> 7u) {
     registers_.at(0xFu) = 1;
@@ -158,6 +158,121 @@ void Cpu::OpcodeBNNN() noexcept {
 void Cpu::OpcodeCXKK() noexcept {
   LOG_TRACE("RND Vx, byte - Set Vx = random byte AND kk.");
   registers_.at((opcode_ & 0x0F00u) >> 8u) = GenUint8() & (opcode_ & 0x00FFu);
+}
+
+void Cpu::OpcodeDXYN() noexcept {
+  LOG_TRACE(
+      "DRW Vx, Vy, nibble - Display n-byte sprite starting at memory location "
+      "I at (Vx, Vy), set VF = collision.");
+  uint8_t x{registers_.at((opcode_ & 0x0F00u) >> 8u)};
+  uint8_t y{registers_.at((opcode_ & 0x00F0u) >> 4u)};
+  uint8_t n{opcode_ & 0x000Fu};
+
+  registers_.at(0xFu) = 0;
+
+  // todo VERIFY CORRECTNESS OF THIS METHOD
+
+  for (size_t i{}; i < n; ++i) {
+    uint8_t mem_byte{memory_.at(index_register_ + n)};
+    for (size_t j{}; j < 8; ++j) {
+      uint8_t mem_bit{(mem_byte >> j) & 0x01u};
+      if (mem_bit && screen_.at((y + i) * 64 + (x + j) * 32)) {
+        registers_.at(0xFu) = 1;
+      }
+      screen_.at((y + i) * 64 + (x + j) * 32) ^= mem_bit;
+    }
+  }
+  
+}
+
+void Cpu::OpcodeEX9E() noexcept {
+  LOG_TRACE(
+      "Ex9E - SKP Vx - Skip next instruction if key with the value of Vx is "
+      "pressed.");
+  if (keys_.at((opcode_ & 0x0F00u) >> 8u)) {
+    program_counter_ += 2;
+  }
+}
+
+void Cpu::OpcodeEXA1() noexcept {
+  LOG_TRACE(
+      "ExA1 - SKNP Vx - Skip next instruction if key with the value of Vx is "
+      "not pressed. ");
+
+  if (!keys_.at((opcode_ & 0x0F00u) >> 8u)) {
+    program_counter_ += 2;
+  }
+}
+
+void Cpu::OpcodeFX07() noexcept {
+  LOG_TRACE("Fx07 - LD Vx, DT - Set Vx = delay timer value.");
+  registers_.at((opcode_ & 0x0F00u) >> 8u) = delay_timer_;
+}
+
+void Cpu::OpcodeFX0A() noexcept {
+  LOG_TRACE(
+      "Fx0A - LD Vx, K - Wait for a key press, store the value of the key in "
+      "Vx.");
+
+  bool pressed{false};
+
+  for (uint8_t i{}; i < 0xFu; ++i) {
+    if (keys_.at(i)) {
+      registers_.at((opcode_ & 0x0F00u) >> 8u) = i;
+      pressed = true;
+    }
+  }
+
+  if (!pressed) {
+    program_counter_ -= 2;
+  }
+}
+
+void Cpu::OpcodeFX15() noexcept {
+  LOG_TRACE("Fx15 - LD DT, Vx - Set delay timer = Vx.");
+  delay_timer_ = registers_.at((opcode_ & 0x0F00u) >> 8u);
+}
+
+void Cpu::OpcodeFX18() noexcept {
+  LOG_TRACE("Fx18 - LD ST, Vx - Set sound timer = Vx.");
+  sound_timer_ = registers_.at((opcode_ & 0x0F00u) >> 8u);
+}
+
+void Cpu::OpcodeFX1E() noexcept {
+  LOG_TRACE("Fx1E - ADD I, Vx - Set I = I + Vx.");
+  index_register_ += registers_.at((opcode_ & 0x0F00u) >> 8u);
+}
+
+void Cpu::OpcodeFX29() noexcept {
+  LOG_TRACE("Fx29 - LD F, Vx - Set I = location of sprite for digit Vx.");
+  index_register_ =
+      kFontsetStartAddress + 5 * registers_.at((opcode_ & 0x0F00u) >> 8u);
+}
+
+void Cpu::OpcodeFX33() noexcept {
+  LOG_TRACE(
+      "Fx33 - LD B, Vx - Store BCD representation of Vx in memory locations I, "
+      "I+1, and I+2.");
+  uint8_t num{registers_.at((opcode_ & 0x0F00u) >> 8u)};
+  memory_.at(index_register_ + 2) = num % 10;
+  num /= 10;
+  memory_.at(index_register_ + 1) = num % 10;
+  num /= 10;
+  memory_.at(index_register_) = num % 10;
+}
+
+void Cpu::OpcodeFX55() noexcept {
+  LOG_TRACE(
+      "Fx55 - LD [I], Vx - Store registers V0 through Vx in memory starting at "
+      "location I. ");
+  std::copy_n(registers_.begin(), 16, memory_.begin() + index_register_);
+}
+
+void Cpu::OpcodeFX65() noexcept {
+  LOG_TRACE(
+      "Fx65 - LD Vx, [I] - Read registers V0 through Vx from memory starting "
+      "at location I. ");
+  std::copy_n(memory_.begin() + index_register_, 16, registers_.begin());
 }
 
 }  // namespace chip8::core
