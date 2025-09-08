@@ -179,7 +179,7 @@ void Cpu::OpcodeDXYN() noexcept {
       if (mem_bit && screen_.at((y + i) * 64 + (x + j) * 32)) {
         registers_.at(0xFu) = 1;
       }
-      screen_.at((y + i) * 64 + (x + j) * 32) ^= mem_bit;
+      screen_.at((y + i) * 64 + (x + j) * 32) ^= static_cast<bool>(mem_bit);
     }
   }
   

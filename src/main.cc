@@ -9,11 +9,18 @@
 int main(int argc, char* argv[]) {
   chip8::utils::Logger::Init();
 
+  LOG_INFO("Started with {} args", argc);
+
+  for (size_t i{1}; i < argc; ++i) {
+    LOG_INFO("Arg #{}: {}", i, argv[i]);
+  }
+
   chip8::core::Cpu cpu;
   cpu.LoadROM("roms/2-ibm-logo.ch8");
 
   chip8::core::Screen screen(cpu);
   screen.RenderLoop([](){});
+
 
   return 0;
 }
