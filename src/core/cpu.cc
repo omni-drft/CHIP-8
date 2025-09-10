@@ -17,13 +17,6 @@ Cpu::Cpu() noexcept
       opcode_() {
   LoadFontChars();
   LOG_INFO("CPU initialized.");
-  for (size_t i{}; i < 64 * 32; ++i) {
-    if (i % 2 == 0) {
-      screen_.at(i) = true;
-    } else {
-      screen_.at(i) = false;
-    }
-  }
 }
 
 bool Cpu::LoadROM(std::filesystem::path rom_path) noexcept {
@@ -99,6 +92,143 @@ void Cpu::PushStack(uint16_t value) noexcept {
     return;
   }
   stack_.at(stack_pointer_++) = value;
+}
+
+void Cpu::Cycle() {
+
+  opcode_ =
+      (memory_.at(program_counter_) << 8u) | memory_.at(program_counter_ + 1);
+
+  program_counter_ += 2;
+
+  switch (opcode_ & 0xF000) {
+    case 0x0000:
+      switch (opcode_) {
+        case 0x00E0:
+          Opcode00E0();
+          break;
+        case 0x00EE:
+          Opcode00EE();
+          break;
+      }
+      break;
+    case 0x1000:
+      Opcode1NNN();
+      break;
+    case 0x2000:
+      Opcode2NNN();
+      break;
+    case 0x3000:
+      Opcode3XKK();
+      break;
+    case 0x4000:
+      Opcode4XKK();
+      break;
+    case 0x5000:
+      Opcode5XY0();
+      break;
+    case 0x6000:
+      Opcode6XKK();
+      break;
+    case 0x7000:
+      Opcode7XKK();
+      break;
+    case 0x8000:
+      switch (opcode_ & 0x000F) {
+        case 0x0000:
+          Opcode8XY0();
+          break;
+        case 0x0001:
+          Opcode8XY1();
+          break;
+        case 0x0002:
+          Opcode8XY2();
+          break;
+        case 0x0003:
+          Opcode8XY3();
+          break;
+        case 0x0004:
+          Opcode8XY4();
+          break;
+        case 0x0005:
+          Opcode8XY5();
+          break;
+        case 0x0006:
+          Opcode8XY6();
+          break;
+        case 0x0007:
+          Opcode8XY7();
+          break;
+        case 0x000E:
+          Opcode8XYE();
+          break;
+      }
+      break;
+    case 0x9000:
+      Opcode9XY0();
+      break;
+    case 0xA000:
+      OpcodeANNN();
+      break;
+    case 0xB000:
+      OpcodeBNNN();
+      break;
+    case 0xC000:
+      OpcodeCXKK();
+      break;
+    case 0xD000:
+      OpcodeDXYN();
+      break;
+    case 0xE000:
+      switch (opcode_ & 0x000F) {
+        case 0x000E:
+          OpcodeEX9E();
+          break;
+        case 0x0001:
+          OpcodeEXA1();
+          break;
+      }
+      break;
+    case 0xF000:
+      switch (opcode_ & 0x00FF) {
+        case 0x0007:
+          OpcodeFX07();
+          break;
+        case 0x000A:
+          OpcodeFX0A();
+          break;
+        case 0x0015:
+          OpcodeFX15();
+          break;
+        case 0x0018:
+          OpcodeFX18();
+          break;
+        case 0x001E:
+          OpcodeFX1E();
+          break;
+        case 0x0029:
+          OpcodeFX29();
+          break;
+        case 0x0033:
+          OpcodeFX33();
+          break;
+        case 0x0055:
+          OpcodeFX55();
+          break;
+        case 0x0065:
+          OpcodeFX65();
+          break;
+      }
+      break;
+  }
+
+  if (delay_timer_ > 0) {
+    --delay_timer_;
+  }
+
+  if (sound_timer_ > 0) {
+    --sound_timer_;
+  }
 }
 
 }  // namespace chip8::core

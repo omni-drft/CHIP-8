@@ -25,7 +25,7 @@ void Cpu::Opcode2NNN() noexcept {
 
 void Cpu::Opcode3XKK() noexcept {
   LOG_TRACE("SE Vx, byte - Skip next instruction if Vx = kk.");
-  if (registers_.at((opcode_ & 0x0F00u) >> 8u) != (opcode_ & 0x00FFu)) {
+  if (registers_.at((opcode_ & 0x0F00u) >> 8u) == (opcode_ & 0x00FFu)) {
     program_counter_ += 2;
   }
 }
@@ -164,25 +164,38 @@ void Cpu::OpcodeDXYN() noexcept {
   LOG_TRACE(
       "DRW Vx, Vy, nibble - Display n-byte sprite starting at memory location "
       "I at (Vx, Vy), set VF = collision.");
-  uint8_t x{registers_.at((opcode_ & 0x0F00u) >> 8u)};
-  uint8_t y{registers_.at((opcode_ & 0x00F0u) >> 4u)};
-  uint8_t n{opcode_ & 0x000Fu};
 
-  registers_.at(0xFu) = 0;
+  const uint8_t vx_index = (opcode_ & 0x0F00u) >> 8u;
+  const uint8_t vy_index = (opcode_ & 0x00F0u) >> 4u;
+  const uint8_t start_x = registers_.at(vx_index);
+  const uint8_t start_y = registers_.at(vy_index);
+  const uint8_t height = opcode_ & 0x000Fu;
 
-  // todo VERIFY CORRECTNESS OF THIS METHOD
+  registers_.at(0xF) = 0;
 
-  for (size_t i{}; i < n; ++i) {
-    uint8_t mem_byte{memory_.at(index_register_ + n)};
-    for (size_t j{}; j < 8; ++j) {
-      uint8_t mem_bit{(mem_byte >> j) & 0x01u};
-      if (mem_bit && screen_.at((y + i) * 64 + (x + j) * 32)) {
-        registers_.at(0xFu) = 1;
+
+  for (uint8_t row_idx = 0; row_idx < height; ++row_idx) {
+    
+    const uint8_t screen_y = (start_y + row_idx) % 32;
+
+    const uint8_t sprite_byte = memory_.at(index_register_ + row_idx);
+
+    for (uint8_t pixel_idx = 0; pixel_idx < 8; ++pixel_idx) {
+
+      const uint8_t screen_x = (start_x + pixel_idx) % 64;
+
+      if ((sprite_byte & (0x80u >> pixel_idx)) != 0) {
+        
+        const size_t screen_idx = screen_y * 64 + screen_x;
+
+        if (screen_.at(screen_idx) == 1) {
+          registers_.at(0xF) = 1;
+        }
+
+        screen_.at(screen_idx) ^= 1;
       }
-      screen_.at((y + i) * 64 + (x + j) * 32) ^= static_cast<bool>(mem_bit);
     }
   }
-  
 }
 
 void Cpu::OpcodeEX9E() noexcept {
@@ -240,7 +253,16 @@ void Cpu::OpcodeFX18() noexcept {
 
 void Cpu::OpcodeFX1E() noexcept {
   LOG_TRACE("Fx1E - ADD I, Vx - Set I = I + Vx.");
-  index_register_ += registers_.at((opcode_ & 0x0F00u) >> 8u);
+  const uint8_t vx_index = (opcode_ & 0x0F00u) >> 8u;
+  const uint16_t vx_value = registers_.at(vx_index);
+
+  if (index_register_ + vx_value > 0xFFFu) {
+    registers_.at(0xF) = 1;
+  } else {
+    registers_.at(0xF) = 0;
+  }
+
+  index_register_ += vx_value;
 }
 
 void Cpu::OpcodeFX29() noexcept {
@@ -265,14 +287,22 @@ void Cpu::OpcodeFX55() noexcept {
   LOG_TRACE(
       "Fx55 - LD [I], Vx - Store registers V0 through Vx in memory starting at "
       "location I. ");
-  std::copy_n(registers_.begin(), 16, memory_.begin() + index_register_);
+  const uint8_t vx_index = (opcode_ & 0x0F00u) >> 8u;
+  std::copy_n(registers_.begin(), vx_index + 1,
+              memory_.begin() + index_register_);
+  index_register_ += vx_index + 1;
 }
 
 void Cpu::OpcodeFX65() noexcept {
   LOG_TRACE(
       "Fx65 - LD Vx, [I] - Read registers V0 through Vx from memory starting "
       "at location I. ");
-  std::copy_n(memory_.begin() + index_register_, 16, registers_.begin());
+  const uint8_t vx_index = (opcode_ & 0x0F00u) >> 8u;
+
+  std::copy_n(memory_.begin() + index_register_, vx_index + 1,
+              registers_.begin());
+
+  index_register_ += vx_index + 1;
 }
 
 }  // namespace chip8::core

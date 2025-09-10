@@ -8,9 +8,11 @@
 #include <functional>
 #include <cstdint>
 #include <cmath>
+#include <chrono>
 
 #include <chip8/core/constants.h>
 #include <chip8/core/cpu.h>
+
 
 namespace chip8::core {
 

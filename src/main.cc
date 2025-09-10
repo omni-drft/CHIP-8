@@ -1,6 +1,6 @@
 #include <chip8/chip8.h>
 
-// todo   IMPLEMENT CPU CYCLE
+// x   IMPLEMENT CPU CYCLE
 
 // ! Links to articles i used:
 // ! https://austinmorlan.com/posts/chip8_emulator/
@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
   }
 
   chip8::core::Cpu cpu;
-  cpu.LoadROM("roms/2-ibm-logo.ch8");
+  cpu.LoadROM("roms/test_opcode.ch8");
 
   chip8::core::Screen screen(cpu);
   screen.RenderLoop([](){});

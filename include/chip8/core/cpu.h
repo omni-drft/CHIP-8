@@ -52,6 +52,8 @@ class Cpu {
 
   CritErrors critical_error_;
 
+  void Cycle();
+
   /// <summary>
   /// CLS - Clears the display.
   /// </summary>

@@ -3,7 +3,12 @@
 namespace chip8::core {
 
 Screen::Screen(Cpu& cpu) noexcept
-    : window_(nullptr), cpu_(cpu), dev_(), have_(), want_(), renderer_(nullptr) {
+    : window_(nullptr),
+      cpu_(cpu),
+      dev_(),
+      have_(),
+      want_(),
+      renderer_(nullptr) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
     LOG_ERROR("Error during SDL initialization: \"{}\"", SDL_GetError());
     SDL_Quit();
@@ -72,18 +77,32 @@ Screen::Screen(Cpu& cpu) noexcept
 }
 
 void Screen::RenderLoop(const std::function<void()>& cpu_cycle) noexcept {
+  int cycle_delay{30};
+  auto last_cycle_time{std::chrono::high_resolution_clock::now()};
+
   SDL_Event e;
   bool quit = false;
-  PlayBeep();
   while (!quit) {
     while (SDL_PollEvent(&e)) {
       if (e.type == SDL_QUIT) {
         quit = true;
       }
     }
-    cpu_cycle();
-    UpdateDisplay();
-    UpdateKeysState();
+
+    auto current_time{std::chrono::high_resolution_clock::now()};
+    float dt{std::chrono::duration<float, std::chrono::milliseconds::period>(
+                 current_time - last_cycle_time)
+                 .count()};
+
+    if (dt > cycle_delay) {
+      last_cycle_time = current_time;
+      cpu_.Cycle();
+      UpdateDisplay();
+      if (cpu_.sound_timer_ == 0) {
+        //PlayBeep();
+      }
+      UpdateKeysState();
+    }
   }
 }
 
