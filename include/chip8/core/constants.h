@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <string>
 
 namespace chip8::core {
 
@@ -10,6 +11,10 @@ enum class CritErrors {
   kStackOverflow
 };
 
+inline float kVolume{};
+inline uint16_t kCycleDelay{};
+inline std::string kRomPath{};
+
 constexpr size_t kRomStartAddress{0x200};
 
 constexpr size_t kScreenWidth{1024};
@@ -18,7 +23,7 @@ constexpr size_t kPixelSize{16};
 
 constexpr size_t kSampleRate{8000};
 constexpr float kFrequency{440.0f};
-constexpr size_t kAmplitude{3000};
+constexpr size_t kAmplitude{28000};
 constexpr float kBeepDuration{0.15f};
 constexpr size_t kBitCrushFactor{256};
 

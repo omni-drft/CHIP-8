@@ -94,12 +94,12 @@ void Screen::RenderLoop(const std::function<void()>& cpu_cycle) noexcept {
                  current_time - last_cycle_time)
                  .count()};
 
-    if (dt > cycle_delay) {
+    if (dt > kCycleDelay) {
       last_cycle_time = current_time;
       cpu_.Cycle();
       UpdateDisplay();
       if (cpu_.sound_timer_ == 0) {
-        //PlayBeep();
+        PlayBeep();
       }
       UpdateKeysState();
     }
@@ -117,7 +117,7 @@ void Screen::GenerateBeep() noexcept {
   for (size_t i{}; i < audio_buffer_.size(); ++i) {
     double time{static_cast<double>(i) / kSampleRate};
     Sint16 sample{static_cast<Sint16>(
-        kAmplitude * std::sin(2.0 * M_PI * kFrequency * time))};
+        (kVolume * kAmplitude) * std::sin(2.0 * M_PI * kFrequency * time))};
     audio_buffer_.at(i) = (sample / kBitCrushFactor) * kBitCrushFactor;
   }
 }
