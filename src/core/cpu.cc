@@ -110,6 +110,8 @@ void Cpu::Cycle() {
         case 0x00EE:
           Opcode00EE();
           break;
+        default:
+          LOG_WARN("Opcode unknown: {:#x}", opcode_);
       }
       break;
     case 0x1000:
@@ -162,6 +164,8 @@ void Cpu::Cycle() {
         case 0x000E:
           Opcode8XYE();
           break;
+        default:
+          LOG_WARN("Opcode unknown: {:#x}", opcode_);
       }
       break;
     case 0x9000:
@@ -187,6 +191,8 @@ void Cpu::Cycle() {
         case 0x0001:
           OpcodeEXA1();
           break;
+        default:
+          LOG_WARN("Opcode unknown: {:#x}", opcode_);
       }
       break;
     case 0xF000:
@@ -218,8 +224,12 @@ void Cpu::Cycle() {
         case 0x0065:
           OpcodeFX65();
           break;
+        default:
+          LOG_WARN("Opcode unknown: {:#x}", opcode_);
       }
       break;
+    default:
+      LOG_WARN("Opcode unknown: {:#x}", opcode_);
   }
 
   if (delay_timer_ > 0) {
