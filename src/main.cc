@@ -12,10 +12,11 @@ int main(int argc, char* argv[]) {
   if (argc != 4) {
     LOG_ERROR("Incorrect amount of start parameters: {}", argc - 1);
     LOG_ERROR("Correct usage: ./{} [rom_path] [volume] [cycle_delay]", argv[0]);
+    return 1;
   }
 
   chip8::core::kVolume = std::stof(argv[2]);
-  chip8::core::kCycleDelay = std::stoull(argv[3]);
+  chip8::core::kCycleDelay = std::stoul(argv[3]);
 
   for (size_t i{1}; i < argc; ++i) {
     LOG_INFO("Arg #{}: {}", i, argv[i]);
