@@ -2,6 +2,8 @@
 
 ### Fully functional C++ Chip-8 Emulator
 
+![image](./demo.png)
+
 ## How to use?
 
 Use included CMake script to build and run. Launcher with GUI is in development. To select roms, volume and cycle delay command line arguments should be passed before running:
