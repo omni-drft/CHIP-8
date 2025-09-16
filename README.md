@@ -22,3 +22,7 @@ All dependencies are automatically downloaded via CMake script:
 * [sdplog](https://github.com/gabime/spdlog.git)
 * [Catch2](https://github.com/catchorg/Catch2.git)
 
+## Contributing & Questions
+
+Feel free to open issues and pull requests. Any found bugs will be analyzed :).
+
