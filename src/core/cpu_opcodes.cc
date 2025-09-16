@@ -229,7 +229,7 @@ void Cpu::OpcodeFX0A() noexcept {
 
   bool pressed{false};
 
-  for (uint8_t i{}; i < 0xFu; ++i) {
+  for (uint8_t i{}; i <= 0xFu; ++i) {
     if (keys_.at(i)) {
       registers_.at((opcode_ & 0x0F00u) >> 8u) = i;
       pressed = true;
