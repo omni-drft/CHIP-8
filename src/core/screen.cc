@@ -76,8 +76,7 @@ Screen::Screen(Cpu& cpu) noexcept
   GenerateBeep();
 }
 
-void Screen::RenderLoop(const std::function<void()>& cpu_cycle) noexcept {
-  int cycle_delay{30};
+void Screen::RenderLoop() noexcept {
   auto last_cycle_time{std::chrono::high_resolution_clock::now()};
 
   SDL_Event e;

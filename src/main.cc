@@ -1,7 +1,5 @@
 #include <chip8/chip8.h>
 
-// x   IMPLEMENT CPU CYCLE
-
 // ! Links to articles i used:
 // ! https://austinmorlan.com/posts/chip8_emulator/
 // ! http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#00E0
@@ -18,7 +16,7 @@ int main(int argc, char* argv[]) {
   chip8::core::kVolume = std::stof(argv[2]);
   chip8::core::kCycleDelay = std::stoul(argv[3]);
 
-  for (size_t i{1}; i < argc; ++i) {
+  for (size_t i{1}; i < static_cast<size_t>(argc); ++i) {
     LOG_INFO("Arg #{}: {}", i, argv[i]);
   }
 
@@ -26,7 +24,7 @@ int main(int argc, char* argv[]) {
   cpu.LoadROM(argv[1]);
 
   chip8::core::Screen screen(cpu);
-  screen.RenderLoop([](){});
+  screen.RenderLoop();
 
 
   return 0;

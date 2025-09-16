@@ -3,6 +3,7 @@
 #include <chip8/core/constants.h>
 #include <chip8/utils/logger.h>
 
+#include <algorithm>
 #include <array>
 #include <chrono>
 #include <cstdint>
@@ -10,48 +11,159 @@
 #include <fstream>
 #include <optional>
 #include <random>
-#include <algorithm>
 
+/// <summary>
+/// Namespace for core components like cpu and screen in the program.
+/// </summary>
 namespace chip8::core {
 
 class Screen;
 
+/// <summary>
+/// Represents the CPU. Handles all cpu components and execution of programs.
+/// </summary>
 class Cpu {
  public:
   friend class Screen;
 
+  /// <summary>
+  /// Initialises all Cpu components to a known state.
+  /// </summary>
   Cpu() noexcept;
+
+  /// <summary>
+  /// Loads ROM using given path to memory. ROM is always loaded into a
+  /// specified section of cpu memory.
+  /// </summary>
   bool LoadROM(std::filesystem::path rom_path) noexcept;
 
  protected:
+  /// <summary>
+  /// Returns a constant reference to the array of pixel states.
+  /// </summary>
+  /// <returns>
+  /// A constant reference to a std::array of 2048 boolean values
+  /// representing the pixel states on screen.
+  /// </returns>
   const std::array<bool, 64 * 32>& GetPixels() const noexcept;
 
  private:
+  /// <summary>
+  /// Loads font character data into memory. Charset is defined in
+  /// core/constants.h.
+  /// </summary>
   void LoadFontChars() noexcept;
+
+  /// <summary>
+  /// Initialises random number generator.
+  /// </summary>
+  /// <returns>RNG seed.</returns>
   unsigned int InitRNG() noexcept;
+
+  /// <summary>
+  /// Generates random unsigned 1 byte integer.
+  /// </summary>
+  /// <returns>
+  /// Random unsigned 1 byte integer.
+  /// </returns>
   uint8_t GenUint8() noexcept;
+
+  /// <summary>
+  /// Removes and returns the top value from the stack, if available.
+  /// </summary>
+  /// <returns>
+  /// An optional containing the top uint16_t value if the stack is not empty;
+  /// otherwise, an empty optional.
+  /// </returns>
   std::optional<uint16_t> PopStack() noexcept;
+
+  /// <summary>
+  /// Pushes a 16-bit unsigned integer value onto the stack.
+  /// </summary>
+  /// <param name="value">
+  /// The 16-bit unsigned integer to push onto the stack.
+  /// </param>
   void PushStack(uint16_t value) noexcept;
 
+  /// <summary>
+  /// A fixed-size array of 16 8-bit unsigned integer registers.
+  /// </summary>
   std::array<uint8_t, 16> registers_;
+
+  /// <summary>
+  /// A fixed-size array representing whole cpu memory.
+  /// </summary>
   std::array<uint8_t, 4096> memory_;
+
+  /// <summary>
+  /// A 16-bit unsigned integer representing an index register.
+  /// </summary>
   uint16_t index_register_;
+
+  /// <summary>
+  /// Represents the current value of the program counter.
+  /// </summary>
   uint16_t program_counter_;
+
+  /// <summary>
+  /// A fixed-size array representing a stack with 16 elements of type uint16_t.
+  /// </summary>
   std::array<uint16_t, 16> stack_;
+
+  /// <summary>
+  /// Represents the current position of the stack pointer.
+  /// </summary>
   uint8_t stack_pointer_;
+
+  /// <summary>
+  /// Represents the value of a delay timer.
+  /// </summary>
   uint8_t delay_timer_;
+
+  /// <summary>
+  /// Represents the value of the sound timer.
+  /// </summary>
   uint8_t sound_timer_;
+
+  /// <summary>
+  /// A fixed-size array holding 16 unsigned 8-bit integers, representing state
+  /// of keypad.
+  /// </summary>
   std::array<uint8_t, 16> keys_;
+
+  /// <summary>
+  /// Represents a fixed-size screen buffer as an array of boolean values.
+  /// </summary>
   std::array<bool, 64 * 32> screen_;
 
+  /// <summary>
+  /// Represents a current opcode value.
+  /// </summary>
   uint16_t opcode_;
 
+  /// <summary>
+  /// Random number generation utility.
+  /// </summary>
   std::random_device rd_;
+
+  /// <summary>
+  /// Random number generation utility.
+  /// </summary>
   std::mt19937 gen_;
+
+  /// <summary>
+  /// Random number generation utility.
+  /// </summary>
   std::uniform_int_distribution<> dist_;
 
+  /// <summary>
+  /// Holds error value in case it occurs. 
+  /// </summary>
   CritErrors critical_error_;
 
+  /// <summary>
+  /// Performs a single cycle of cpu.
+  /// </summary>
   void Cycle();
 
   /// <summary>
@@ -363,8 +475,8 @@ class Cpu {
 
   /// <summary>
   /// Fx65 - LD Vx, [I] - Read registers V0 through Vx from memory starting at
-  /// location I. 
-  /// <para> 
+  /// location I.
+  /// <para>
   /// The interpreter reads values from memory starting at
   /// location I into registers V0 through Vx.
   /// </para>
